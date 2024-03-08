@@ -19,6 +19,12 @@ class FormerController extends AbstractController
         $this->formerService = $formerService;
     }
 
+    #[Route('/new', name: 'api_former_new', methods: ['POST'])]
+    public function newFormer(Request $request): JsonResponse
+    {
+        return $this->formerService->newFormer($request);
+    }
+
     #[Route('/{id}', name: 'app_former_get_one', methods: ['GET'])]
     public function getOneFormer(int $id): JsonResponse
     {
@@ -29,12 +35,6 @@ class FormerController extends AbstractController
     public function getAllFormers(): JsonResponse
     {
         return $this->formerService->getAllFormers();
-    }
-
-    #[Route('/new', name: 'api_former_new', methods: ['POST'])]
-    public function newFormer(Request $request): JsonResponse
-    {
-        return $this->formerService->newFormer($request);
     }
     
     #[Route('/edit/{id}', name: 'api_former_edit', methods: ['PUT'])]

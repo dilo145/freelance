@@ -7,16 +7,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Service\OrganismService;
-use Doctrine\ORM\EntityManagerInterface;
-use App\Entity\Organism;
 
 #[Route('/api/organisms')]
 class OrganismController extends AbstractController
 {
-
     private $organismService;
-    private $entityManager;
-    public function __construct(OrganismService $organismService, EntityManagerInterface $entityManager)
+
+    public function __construct(OrganismService $organismService)
     {
         $this->organismService = $organismService;
     }
@@ -32,6 +29,7 @@ class OrganismController extends AbstractController
     {
         return $this->organismService->readByCreator($id);
     }
+    
     #[Route('/', name: 'api_organism_read_all', methods: ['GET'])]
     public function readAllOrganisms(): Response
     {

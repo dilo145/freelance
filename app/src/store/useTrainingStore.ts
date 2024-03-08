@@ -62,7 +62,7 @@ export const useTrainingStore = defineStore('training', () => {
 
   function getTraining(id: string) {
     api
-      .get<Training>(`/trainings/getOne/${id}`)
+      .get<Training>(`/trainings/${id}`)
       .then((data) => {
         editTraining.value = data;
       })

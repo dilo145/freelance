@@ -39,6 +39,41 @@ class LevelService
 
         return new JsonResponse(['message' => 'Level created successfully'], Response::HTTP_CREATED);
     }
+
+    public function read(int $id): Response
+    {
+        $level = $this->entityManager->getRepository(Level::class)->find($id);
+
+        if ($level == null) {
+            throw new NotFoundHttpException('Level not found');
+        }
+
+        $data = [
+            'id' => $level->getId(),
+            'name' => $level->getName(),
+            'description' => $level->getDescription()
+        ];
+
+        return new JsonResponse($data, Response::HTTP_OK);
+    }
+
+    public function readAll(): Response
+    {
+        $levels = $this->entityManager->getRepository(Level::class)->findAll();
+
+        $data = [];
+
+        foreach ($levels as $level) {
+            $data[] = [
+                'id' => $level->getId(),
+                'name' => $level->getName(),
+                'description' => $level->getDescription()
+            ];
+        }
+
+        return new JsonResponse($data, Response::HTTP_OK);
+    }
+
     public function update(Request $request, int $id): Response
     {
         $level = $this->entityManager->getRepository(Level::class)->find($id);
@@ -88,40 +123,6 @@ class LevelService
         }
 
         return new JsonResponse(['message' => 'Level deleted successfully'], Response::HTTP_OK);
-    }
-
-    public function read(int $id): Response
-    {
-        $level = $this->entityManager->getRepository(Level::class)->find($id);
-
-        if ($level == null) {
-            throw new NotFoundHttpException('Level not found');
-        }
-
-        $data = [
-            'id' => $level->getId(),
-            'name' => $level->getName(),
-            'description' => $level->getDescription()
-        ];
-
-        return new JsonResponse($data, Response::HTTP_OK);
-    }
-
-    public function readAll(): Response
-    {
-        $levels = $this->entityManager->getRepository(Level::class)->findAll();
-
-        $data = [];
-
-        foreach ($levels as $level) {
-            $data[] = [
-                'id' => $level->getId(),
-                'name' => $level->getName(),
-                'description' => $level->getDescription()
-            ];
-        }
-
-        return new JsonResponse($data, Response::HTTP_OK);
     }
 
 }

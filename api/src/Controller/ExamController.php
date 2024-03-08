@@ -39,7 +39,6 @@ class ExamController extends AbstractController
     #[Route('/edit/{id}', name: 'api_exam_edit', methods: ['PATCH'])]
     public function updateExam(Request $request, int $id): Response
     {
-
         return $this->examService->update($request, $id);
     }
 

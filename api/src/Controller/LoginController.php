@@ -24,7 +24,7 @@ class LoginController extends AbstractController
             return new JsonResponse(['error' => 'Missing required fields'], Response::HTTP_BAD_REQUEST);
         }
         try {
-            $user = $userRepository->findByEmail($data['email']);
+            $user = $userRepository->findOneByEmail($data['email']);
         } catch (\Exception $e) {
             return new JsonResponse(['error' => 'Invalid Email/Password'], Response::HTTP_UNAUTHORIZED);
         }

@@ -2,96 +2,57 @@
 
 namespace App\Controller;
 
-use App\Entity\Training;
-use App\Entity\Organism;
-use App\Entity\Former;
-use App\Repository\TrainingRepository;
-use App\Repository\OrganismRepository;
-use App\Repository\FormerRepository;
+use App\Service\TrainingService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Doctrine\ORM\EntityManagerInterface;
 
 #[Route('/api/trainings')]
 class TrainingController extends AbstractController
 {
 
-    private $entityManager;
+    private $trainingService;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(TrainingService $trainingService)
     {
-        $this->entityManager = $entityManager;
+        $this->trainingService = $trainingService;
     }
 
     #[Route('/new', name: 'api_training_new', methods: ['POST'])]
-    public function newTraining(Request $request, TrainingRepository $TrainingRepository, OrganismRepository $OrganismRepository)
+    public function newTraining(Request $request): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
+        return $this->trainingService->create($request);
+    }
 
-        $organism = $OrganismRepository->find($data["organism"]["id"]);
+    #[Route('/{id}', name: 'api_training_get_one', methods: ['GET'])]
+    public function getOne(int $id): JsonResponse
+    {
+        return $this->trainingService->read($id);
+    }
 
-        if ($organism == null) {
-            throw $this->createNotFoundException('Error while creating training');
-        }
-
-        $response = $TrainingRepository->create($data, $organism);
-
-        if (!$response) {
-            throw $this->createNotFoundException('Error while creating training');
-        }
-
-        return $this->json($response);
+    // TODO: Use in front-end
+    #[Route('/getAllbyFormer/{formerId}', name: 'app_training_index', methods: ['GET'])]
+    public function getAllByFormer(int $formerId): JsonResponse
+    {
+        return $this->trainingService->getAllByFormer($formerId);
     }
 
     #[Route('/', name: 'app_training_index', methods: ['GET'])]
-    public function getAll(TrainingRepository $TrainingRepository): Response
+    public function getAll(): JsonResponse
     {
-        $trainings = $TrainingRepository->findAll();
-
-        return $this->json($trainings);
+        return $this->trainingService->getAll();
     }
 
-    #[Route('/update/{id}', name: 'training_update', methods: ['PUT'])]
-    public function update(Request $request, TrainingRepository $TrainingRepository,OrganismRepository $OrganismRepository, int $id): Response
+    #[Route('/edit/{id}', name: 'api_training_edit', methods: ['PUT'])]
+    public function update(Request $request, int $id): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
-        $organism = $OrganismRepository->find($data["organism"]["id"]);
-        $response = $TrainingRepository->update($data,$organism ,$id);
-        if (!$response) {
-            throw $this->createNotFoundException('Error while updating training');
-        }
-
-        return $this->json($response);
+        return $this->trainingService->update($request, $id);
     }
 
-    #[Route('/delete/{id}', name: 'training_delete', methods: ['DELETE'])]
-    public function delete(TrainingRepository $TrainingRepository, int $id): Response
+    #[Route('/delete/{id}', name: 'api_training_delete', methods: ['DELETE'])]
+    public function delete(int $id): JsonResponse
     {
-        if ($id === null) {
-            throw $this->createNotFoundException('Id is required');
-        }
-
-        $Training = $TrainingRepository->delete($id);
-
-        if (!$Training) {
-            throw $this->createNotFoundException('Training not found');
-        }
-
-        return $this->json($Training);
-    }
-
-    #[Route('/getOne/{id}', name: 'training_show', methods: ['GET'])]
-    public function getOne(TrainingRepository $TrainingRepository, int $id): Response
-    {
-        $Training = $TrainingRepository->find($id);
-
-        if (!$Training) {
-            throw $this->createNotFoundException('Training not found');
-        }
-
-        return $this->json($Training);
+        return $this->trainingService->delete($id);
     }
 }

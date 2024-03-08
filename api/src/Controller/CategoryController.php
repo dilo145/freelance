@@ -24,18 +24,6 @@ class CategoryController extends AbstractController
     {
         return $this->categoryService->create($request);
     }
-    
-    #[Route('/edit/{id}', name: 'api_category_edit', methods: ['PUT'])]
-    public function updateCategory(Request $request, int $id): Response
-    {
-        return $this->categoryService->update($request, $id);
-    }
-
-    #[Route('/delete/{id}', name: 'api_category_delete', methods: ['DELETE'])]
-    public function deleteLevel(int $id): Response
-    {
-        return $this->categoryService->delete($id);
-    }
 
     #[Route('/{id}', name: 'api_category_read', methods: ['GET'])]
     public function readCategory(int $id): Response
@@ -48,5 +36,16 @@ class CategoryController extends AbstractController
     {
         return $this->categoryService->readAll();
     }
+    
+    #[Route('/edit/{id}', name: 'api_category_edit', methods: ['PUT'])]
+    public function updateCategory(Request $request, int $id): Response
+    {
+        return $this->categoryService->update($request, $id);
+    }
 
+    #[Route('/delete/{id}', name: 'api_category_delete', methods: ['DELETE'])]
+    public function deleteLevel(int $id): Response
+    {
+        return $this->categoryService->delete($id);
+    }
 }

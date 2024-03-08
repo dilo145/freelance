@@ -43,12 +43,11 @@ class QuestionService
             $this->entityManager->persist($question);
             $this->entityManager->flush();
         } catch (\Exception $e) {
-            return new JsonResponse(['error' => 'Failed to save the exam'], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return new JsonResponse(['error' => 'Failed to save the question'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return new JsonResponse(['message' => 'Exam created successfully'], Response::HTTP_CREATED);
+        return new JsonResponse(['message' => 'Question created successfully'], Response::HTTP_CREATED);
     }
-
 
     public function readAll(): Response
     {

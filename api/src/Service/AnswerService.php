@@ -36,7 +36,7 @@ class AnswerService
             $this->entityManager->persist($answer);
             $this->entityManager->flush();
         } catch (\Exception $e) {
-            return new JsonResponse(['error' => 'Failed to save the answer'], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return new JsonResponse(['error' => 'Failed to create the answer'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         return new JsonResponse(['message' => 'Answer created successfully'], Response::HTTP_CREATED);

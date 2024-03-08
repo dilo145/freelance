@@ -90,7 +90,7 @@ export const useStudentStore = defineStore('student', () => {
 
   function getTrainingStudent(id: string) {
     api
-      .get<Student[]>(`users/get_by_training/${id}`)
+      .get<Student[]>(`users/getByTraining/${id}`)
       .then((data) => {
         students.value = data;
       })

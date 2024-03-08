@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Student;
+use App\Entity\Training;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,52 +22,35 @@ class StudentService
         $this->userPasswordHasher = $userPasswordHasher;
     }
 
-    public function getOneStudent(int $id): JsonResponse
+    public function createStudents(array $studentsData): JsonResponse
     {
-        $student = $this->entityManager->getRepository(Student::class)->find($id);
+        foreach ($studentsData as $studentData) {
 
-        if (!$student) {
-            return new JsonResponse(['error' => 'Student not found'], Response::HTTP_NOT_FOUND);
+            if (!$this->entityManager->getRepository(Student::class)->findOneBy(['email' => $studentData['email']])) {
+                $student = new Student();
+                $student->setFirstName($studentData['firstName']);
+                $student->setLastName($studentData['lastName']);
+                $student->setEmail($studentData['email']);
+                if ($studentData['invidual'] == 'FALSE' || $studentData['invidual'] == 'false' || $studentData['invidual'] == 0) {
+                    $student->setInvidual(false);
+                } else if ($studentData['invidual'] == 'TRUE' || $studentData['invidual'] == 'true' || $studentData['invidual'] == 1) {
+                    $student->setInvidual(true);
+                }
+                $student->setCreatedAt();
+                $student->setRoles(['ROLE_STUDENT']);
+                $student->setPassword(bin2hex(random_bytes(16)));
+
+                $this->entityManager->persist($student);
+            }
         }
 
-        $studentData = [
-            'id' => $student->getId(),
-            'firstName' => $student->getFirstName(),
-            'lastName' => $student->getLastName(),
-            'email' => $student->getEmail(),
-            'photo' => $student->getPhoto(),
-            'roles' => $student->getRoles(),
-            'invidual' => $student->isInvidual(),
-            'createdAt' => $student->getCreatedAt()->format('Y-m-d H:i:s'),
-            'updatedAt' => $student->getUpdatedAt() ? $student->getUpdatedAt()->format('Y-m-d H:i:s') : null,
-        ];
-
-        return new JsonResponse($studentData, Response::HTTP_OK);
-    }
-
-    public function getAllStudents(): JsonResponse
-    {
-        $students = $this->entityManager->getRepository(Student::class)->findAll();
-
-        $studentsData = [];
-
-        foreach ($students as $student) {
-            $studentData = [
-                'id' => $student->getId(),
-                'firstName' => $student->getFirstName(),
-                'lastName' => $student->getLastName(),
-                'email' => $student->getEmail(),
-                'photo' => $student->getPhoto(),
-                'invidual' => $student->isInvidual(),
-                'createdAt' => $student->getCreatedAt()->format('Y-m-d H:i:s'),
-                'updatedAt' => $student->getUpdatedAt() ? $student->getUpdatedAt()->format('Y-m-d H:i:s') : null,
-                'deletedAt' => $student->getDeletedAt() ? $student->getDeletedAt()->format('Y-m-d H:i:s') : null,
-            ];
-
-            $studentsData[] = $studentData;
+        try {
+            $this->entityManager->flush();
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'Failed to create students'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return new JsonResponse($studentsData, Response::HTTP_OK);
+        return new JsonResponse(['message' => 'Students created successfully'], Response::HTTP_CREATED);
     }
 
     public function newStudent(Request $request): JsonResponse
@@ -111,35 +95,78 @@ class StudentService
         return new JsonResponse(['message' => 'Student created successfully'], Response::HTTP_CREATED);
     }
 
-    public function createStudents(array $studentsData): JsonResponse
+    public function getOneStudent(int $id): JsonResponse
     {
-        foreach ($studentsData as $studentData) {
+        $student = $this->entityManager->getRepository(Student::class)->find($id);
 
-            if (!$this->entityManager->getRepository(Student::class)->findOneBy(['email' => $studentData['email']])) {
-                $student = new Student();
-                $student->setFirstName($studentData['firstName']);
-                $student->setLastName($studentData['lastName']);
-                $student->setEmail($studentData['email']);
-                if ($studentData['invidual'] == 'FALSE' || $studentData['invidual'] == 'false' || $studentData['invidual'] == 0) {
-                    $student->setInvidual(false);
-                } else if ($studentData['invidual'] == 'TRUE' || $studentData['invidual'] == 'true' || $studentData['invidual'] == 1) {
-                    $student->setInvidual(true);
-                }
-                $student->setCreatedAt();
-                $student->setRoles(['ROLE_STUDENT']);
-                $student->setPassword(bin2hex(random_bytes(16)));
-
-                $this->entityManager->persist($student);
-            }
+        if (!$student) {
+            return new JsonResponse(['error' => 'Student not found'], Response::HTTP_NOT_FOUND);
         }
 
-        try {
-            $this->entityManager->flush();
-        } catch (\Exception $e) {
-            return new JsonResponse(['error' => 'Failed to create students'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        $studentData = [
+            'id' => $student->getId(),
+            'firstName' => $student->getFirstName(),
+            'lastName' => $student->getLastName(),
+            'email' => $student->getEmail(),
+            'photo' => $student->getPhoto(),
+            'roles' => $student->getRoles(),
+            'invidual' => $student->isInvidual(),
+            'createdAt' => $student->getCreatedAt()->format('Y-m-d H:i:s'),
+            'updatedAt' => $student->getUpdatedAt() ? $student->getUpdatedAt()->format('Y-m-d H:i:s') : null,
+        ];
+
+        return new JsonResponse($studentData, Response::HTTP_OK);
+    }
+
+    public function getAllStudents(): JsonResponse
+    {
+        $students = $this->entityManager->getRepository(Student::class)->findAll();
+
+        $studentsData = [];
+
+        foreach ($students as $student) {
+            $studentsData[] = [
+                'id' => $student->getId(),
+                'firstName' => $student->getFirstName(),
+                'lastName' => $student->getLastName(),
+                'email' => $student->getEmail(),
+                'photo' => $student->getPhoto(),
+                'invidual' => $student->isInvidual(),
+                'createdAt' => $student->getCreatedAt()->format('Y-m-d H:i:s'),
+                'updatedAt' => $student->getUpdatedAt() ? $student->getUpdatedAt()->format('Y-m-d H:i:s') : null,
+                'deletedAt' => $student->getDeletedAt() ? $student->getDeletedAt()->format('Y-m-d H:i:s') : null,
+            ];
         }
 
-        return new JsonResponse(['message' => 'Students created successfully'], Response::HTTP_CREATED);
+        return new JsonResponse($studentsData, Response::HTTP_OK);
+    }
+
+    public function getAllStudentsByTraining(int $idTraining): JsonResponse
+    {
+        $training = $this->entityManager->getRepository(Training::class)->find($idTraining);
+
+        $registrations = $training->getRegistrations();
+
+        $studentsData = [];
+
+        foreach ($registrations as $registration) {
+            $student = $registration->getStudent();
+            $studentData = [
+                'id' => $student->getId(),
+                'firstName' => $student->getFirstName(),
+                'lastName' => $student->getLastName(),
+                'email' => $student->getEmail(),
+                'photo' => $student->getPhoto(),
+                'invidual' => $student->isInvidual(),
+                'createdAt' => $student->getCreatedAt()->format('Y-m-d H:i:s'),
+                'updatedAt' => $student->getUpdatedAt() ? $student->getUpdatedAt()->format('Y-m-d H:i:s') : null,
+                'deletedAt' => $student->getDeletedAt() ? $student->getDeletedAt()->format('Y-m-d H:i:s') : null,
+            ];
+
+            $studentsData[] = $studentData;
+        }
+
+        return new JsonResponse($studentsData, Response::HTTP_OK);
     }
 
     public function editStudent(Request $request, int $id): JsonResponse

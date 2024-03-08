@@ -45,11 +45,4 @@ class OrganismRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
-    public function getAll()
-    {
-        return $this->createQueryBuilder('o')
-            ->select('o.id', 'o.name', 't.name', 'o.logo','o.created_by')
-            ->getQuery()
-            ->getResult();
-    }
 }

@@ -3,8 +3,6 @@
 namespace App\Repository;
 
 use App\Entity\Lesson;
-use App\Entity\Categories;
-use App\Entity\Level;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -23,100 +21,28 @@ class LessonRepository extends ServiceEntityRepository
         parent::__construct($registry, Lesson::class);
     }
 
-    public function getAll()
-    {
-        return $this->createQueryBuilder('l')
-            ->select('l.id', 'l.title', 'l.description', 'l.place', 'l.time')
-            ->getQuery()
-            ->getResult();
-    }
+//    /**
+//     * @return Lesson[] Returns an array of Lesson objects
+//     */
+//    public function findByExampleField($value): array
+//    {
+//        return $this->createQueryBuilder('l')
+//            ->andWhere('l.exampleField = :val')
+//            ->setParameter('val', $value)
+//            ->orderBy('l.id', 'ASC')
+//            ->setMaxResults(10)
+//            ->getQuery()
+//            ->getResult()
+//        ;
+//    }
 
-    public function getOne(int $id)
-    {
-        return $this->createQueryBuilder('l')
-            ->select('l.id', 'l.title', 'l.description')
-            ->where('l.id = :id')
-            ->setParameter('id', $id)
-            ->getQuery()
-            ->getOneOrNullResult();
-    }
-
-    public function create($data, $level, $categories)
-    {
-        $lesson = new Lesson();
-        $lesson->setTitle($data['title']);
-        $lesson->setDescription($data['description']);
-        $lesson->setPlace($data['place']);
-        $lesson->setGoal($data['goal']);
-
-        $lesson->setLevel($level);
-        $db_categories = $lesson->getCategory();
-
-        foreach ($db_categories as $db_category) {
-            $lesson->removeCategory($db_category);
-        }
-
-        foreach ($categories as $category) {
-            $cat = $this->getEntityManager()->getRepository(Categories::class)->find($category['id']);
-
-            $lesson->addCategory($cat);
-        }
-
-
-        $em = $this->getEntityManager();
-        $em->persist($lesson);
-        $em->flush();
-
-        return $lesson;
-    }
-
-    public function update($data, int $id, $level, $categories)
-    {
-        $lesson = $this->find($id);
-
-        if (!$lesson) {
-            return null;
-        }
-
-        $lesson->setTitle($data['title']);
-        $lesson->setDescription($data['description']);
-        $lesson->setPlace($data['place']);
-        $lesson->setGoal($data['goal']);
-
-        $lesson->setLevel($level);
-        $db_categories = $lesson->getCategory();
-
-        foreach ($db_categories as $db_category) {
-            $lesson->removeCategory($db_category);
-        }
-
-        foreach ($categories as $category) {
-            $cat = $this->getEntityManager()->getRepository(Categories::class)->find($category['id']);
-
-            $lesson->addCategory($cat);
-        }
-
-        $em = $this->getEntityManager();
-        $em->persist($lesson);
-        $em->flush();
-
-        return $lesson;
-    }
-
-    public function delete(int $id)
-    {
-        $lesson = $this->find($id);
-
-        if (!$lesson) {
-            return null;
-        }
-
-        $em = $this->getEntityManager();
-        $em->remove($lesson);
-        $em->flush();
-
-        return $lesson;
-    }
-
-
+//    public function findOneBySomeField($value): ?Lesson
+//    {
+//        return $this->createQueryBuilder('l')
+//            ->andWhere('l.exampleField = :val')
+//            ->setParameter('val', $value)
+//            ->getQuery()
+//            ->getOneOrNullResult()
+//        ;
+//    }
 }

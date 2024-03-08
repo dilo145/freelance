@@ -21,53 +21,6 @@ class FormerService
         $this->userPasswordHasher = $userPasswordHasher;
     }
 
-    public function getOneFormer(int $id): JsonResponse
-    {
-        $former = $this->entityManager->getRepository(Former::class)->findOneById($id);
-
-        if (!$former) {
-            return new JsonResponse(['error' => 'Former not found'], Response::HTTP_NOT_FOUND);
-        }
-
-        $formerData = [
-            'id' => $former->getId(),
-            'firstName' => $former->getFirstName(),
-            'lastName' => $former->getLastName(),
-            'email' => $former->getEmail(),
-            'photo' => $former->getPhoto(),
-            'createdAt' => $former->getCreatedAt()->format('Y-m-d H:i:s'),
-            'updatedAt' => $former->getUpdatedAt() ? $former->getUpdatedAt()->format('Y-m-d H:i:s') : null,
-            'deletedAt' => $former->getDeletedAt() ? $former->getDeletedAt()->format('Y-m-d H:i:s') : null,
-        ];
-
-
-        return new JsonResponse($formerData, Response::HTTP_OK);
-    }
-
-    public function getAllFormers(): JsonResponse
-    {
-        $formers = $this->entityManager->getRepository(Former::class)->findAll();
-
-        $formersData = [];
-
-        foreach ($formers as $former) {
-            $formerData = [
-                'id' => $former->getId(),
-                'firstName' => $former->getFirstName(),
-                'lastName' => $former->getLastName(),
-                'email' => $former->getEmail(),
-                'photo' => $former->getPhoto(),
-                'createdAt' => $former->getCreatedAt()->format('Y-m-d H:i:s'),
-                'updatedAt' => $former->getUpdatedAt() ? $former->getUpdatedAt()->format('Y-m-d H:i:s') : null,
-                'deletedAt' => $former->getDeletedAt() ? $former->getDeletedAt()->format('Y-m-d H:i:s') : null,
-            ];
-
-            $formersData[] = $formerData;
-        }
-
-        return new JsonResponse($formersData, Response::HTTP_OK);
-    }
-
     public function newFormer(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -109,6 +62,51 @@ class FormerService
         }
 
         return new JsonResponse(['message' => 'Former created successfully'], Response::HTTP_CREATED);
+    }
+
+    public function getOneFormer(int $id): JsonResponse
+    {
+        $former = $this->entityManager->getRepository(Former::class)->findOneById($id);
+
+        if (!$former) {
+            return new JsonResponse(['error' => 'Former not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $formerData = [
+            'id' => $former->getId(),
+            'firstName' => $former->getFirstName(),
+            'lastName' => $former->getLastName(),
+            'email' => $former->getEmail(),
+            'photo' => $former->getPhoto(),
+            'createdAt' => $former->getCreatedAt()->format('Y-m-d H:i:s'),
+            'updatedAt' => $former->getUpdatedAt() ? $former->getUpdatedAt()->format('Y-m-d H:i:s') : null,
+            'deletedAt' => $former->getDeletedAt() ? $former->getDeletedAt()->format('Y-m-d H:i:s') : null,
+        ];
+
+
+        return new JsonResponse($formerData, Response::HTTP_OK);
+    }
+
+    public function getAllFormers(): JsonResponse
+    {
+        $formers = $this->entityManager->getRepository(Former::class)->findAll();
+
+        $formersData = [];
+
+        foreach ($formers as $former) {
+            $formerData[] = [
+                'id' => $former->getId(),
+                'firstName' => $former->getFirstName(),
+                'lastName' => $former->getLastName(),
+                'email' => $former->getEmail(),
+                'photo' => $former->getPhoto(),
+                'createdAt' => $former->getCreatedAt()->format('Y-m-d H:i:s'),
+                'updatedAt' => $former->getUpdatedAt() ? $former->getUpdatedAt()->format('Y-m-d H:i:s') : null,
+                'deletedAt' => $former->getDeletedAt() ? $former->getDeletedAt()->format('Y-m-d H:i:s') : null,
+            ];
+        }
+
+        return new JsonResponse($formersData, Response::HTTP_OK);
     }
 
     public function editFormer(Request $request, int $id): JsonResponse
